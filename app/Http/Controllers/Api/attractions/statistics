@@ -1,0 +1,52 @@
+document.addEventListener("DOMContentLoaded", function () {
+    // 發送請求取得統計資料
+    axios.get('/api/attractions/statistics')
+        .then(response => {
+            const data = response.data;
+            console.log('統計資料抓取成功：', data); // 可以打開 F12 看這裡有沒有印出資料
+
+            // 1. 更新上方總數數字
+            const totalAttractionsEl = document.querySelector('[x-text="totalAttractions"]');
+            if (totalAttractionsEl) totalAttractionsEl.innerText = data.total_attractions;
+
+            const totalCategoriesEl = document.querySelector('[x-text="totalCategories"]');
+            if (totalCategoriesEl) totalCategoriesEl.innerText = data.total_categories;
+
+            // 2. 渲染各城市長條圖
+            const cityCtx = document.getElementById('cityChart');
+            if (cityCtx) {
+                new Chart(cityCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data.city_counts),
+                        datasets: [{
+                            label: '景點數量',
+                            data: Object.values(data.city_counts),
+                            backgroundColor: '#3B82F6',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+
+            // 3. 渲染各分類圓餅圖
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx) {
+                new Chart(categoryCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(data.category_counts),
+                        datasets: [{
+                            data: Object.values(data.category_counts),
+                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('抓取統計資料失敗，請檢查 API 路由或登入狀態：', error);
+        });
+});

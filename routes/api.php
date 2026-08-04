@@ -24,6 +24,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [AttractionController::class, 'favorites']);
     Route::post('/attractions/{attraction}/favorite', [AttractionController::class, 'toggleFavorite']);
 
+    // 📊 統計圖表 API（必須放在 apiResource 上方，避免被 id 攔截）
+    Route::get('/attractions/statistics', [AttractionController::class, 'statistics']);
+
     // 景點與分類相關 API
     Route::apiResource('attractions', AttractionController::class);
     Route::get('/categories', [CategoryController::class, 'index']);

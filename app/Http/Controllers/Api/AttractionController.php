@@ -189,4 +189,33 @@ class AttractionController extends Controller
             'message' => '操作成功'
         ]);
     }
+    // 🎯 取得當前使用者的景點統計數據（供圖表與卡片使用）
+    public function statistics(Request $request)
+    {
+        $user = $request->user();
+
+        // 取得該使用者所有的景點（帶有關聯的分類名稱）
+        $attractions = Attraction::with('category')->where('user_id', $user->id)->get();
+
+        // 1. 景點總數
+        $totalAttractions = $attractions->count();
+
+        // 2. 分類總數（計算不重複的 category_id 數量）
+        $totalCategories = $attractions->unique('category_id')->count();
+
+        // 3. 各城市景點數量統計
+        $cityCounts = $attractions->groupBy('city')->map->count();
+
+        // 4. 各分類景點比例統計（以分類名稱作為 Key）
+        $categoryCounts = $attractions->groupBy(function ($item) {
+            return $item->category ? $item->category->name : '未分類';
+        })->map->count();
+
+        return response()->json([
+            'total_attractions' => $totalAttractions,
+            'total_categories' => $totalCategories,
+            'city_counts' => $cityCounts,
+            'category_counts' => $categoryCounts,
+        ]);
+    }
 }
