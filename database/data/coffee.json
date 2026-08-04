@@ -1,0 +1,26 @@
+[
+    {
+        "title": "奉咖啡 (A-Feng Cafe)",
+        "category": "老宅尋香 ｜ 自家烘焙",
+        "location": "西區",
+        "address": "中興街巷弄",
+        "image": "images/img09.jpg",
+        "description": "藏身在勤美綠園道附近的靜謐老宅裡，沒有過多喧嘩，只有陣陣樸實的咖啡香。推開木門，彷彿時間慢了下來，是尋找靈感與品味職人手沖咖啡的絕佳去處。"
+    },
+    {
+        "title": "小路咖啡 (Trois Cafe)",
+        "category": "隱密閣樓 ｜ 城市避難所",
+        "location": "西區",
+        "address": "美村路巷弄",
+        "image": "images/img10.jpg",
+        "description": "隱身於老社區的二樓小閣樓，帶有濃厚的昭和復古與日系雜貨選物感。點一杯手沖，配上一本書或筆電，就能在這裡安靜度過一個無人打擾的溫柔午後。"
+    },
+    {
+        "title": "coffee Stopover",
+        "category": "自由咖啡實驗室 ｜ 日常停泊",
+        "location": "西區",
+        "address": "華美街巷弄",
+        "image": "images/img11.jpg",
+        "description": "座落在向上市場附近的轉角巷弄，純白簡約的建築外觀與隨性自在的氛圍，深受在地人喜愛。這裡提供豐富的烘焙度與豆款選擇，像是一座隨時為城市旅人敞開的咖啡驛站。"
+    }
+]

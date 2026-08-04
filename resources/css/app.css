@@ -1,0 +1,76 @@
+/* =====================================================
+   旅遊景點管理與數據統計 Dashboard - 自定義樣式
+   ===================================================== */
+
+/* 1. 全局變數與色彩定義 */
+:root {
+    --primary-color: #1E3A8A;
+    /* 深海藍 (主色) */
+    --accent-color: #F59E0B;
+    /* 陽光黃 (輔色/強調) */
+    --bg-color: #F8FAFC;
+    /* 極淺灰藍 (背景) */
+    --text-main: #1E293B;
+    /* 深石墨灰 (文字主色) */
+    --success-color: #10B981;
+    /* 翠綠色 (成功/新增) */
+    --danger-color: #EF4444;
+    /* 柔和紅 (刪除/錯誤) */
+}
+
+/* 2. 基礎排版優化 */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* 3. 頂部導覽列樣式 */
+.navbar-custom {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+/* 4. 按鈕視覺優化 */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    transition: opacity 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+    opacity: 0.9;
+}
+
+.btn-accent-custom {
+    background-color: var(--accent-color);
+    color: #1E293B;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+}
+
+.btn-accent-custom:hover {
+    opacity: 0.9;
+}
+
+/* 5. 卡片與容器陰影 */
+.dashboard-card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* 6. 狀態標籤與提示區塊 */
+.alert-warning-custom {
+    background-color: #FEF3C7;
+    border-left: 4px solid var(--accent-color);
+    color: #92400E;
+}
