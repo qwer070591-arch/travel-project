@@ -128,7 +128,8 @@ createApp({
         const showCreateModal = ref(false);
         const showEditModal = ref(false);
         const showLoginModal = ref(false);
-
+        const showDetailModal = ref(false);
+        const currentDetailItem = ref(null);
         // 身份驗證與會員資料表單
         const isRegisterMode = ref(false);
         const authError = ref('');
@@ -626,11 +627,11 @@ createApp({
         const toggleAuthMode = () => { isRegisterMode.value = !isRegisterMode.value; authError.value = ''; };
 
         const handleCategoryInput = (e) => {
-            newCategoryName.value = e.target.value.replace(/[^\w\u4e00-\u9fa5]/g, '');
+            newCategoryName.value = e.target.value.replace(/[^A-Za-z0-9\u4e00-\u9fa5]/g, '');
         };
 
         const handleEditCategoryInput = (e) => {
-            editCategoryForm.value.name = e.target.value.replace(/[^\w\u4e00-\u9fa5]/g, '');
+            editCategoryForm.value.name = e.target.value.replace(/[^A-Za-z0-9\u4e00-\u9fa5]/g, '');
         };
 
         // =========================================================================
@@ -656,6 +657,12 @@ createApp({
                 }
             }
         };
+        // 打開詳細資訊 Modal
+        const openDetail = (item) => {
+            currentDetailItem.value = item;
+            showDetailModal.value = true;
+        };
+
 
         onMounted(() => {
             init();
@@ -735,7 +742,10 @@ createApp({
             hotAttractions,
             pagedHotAttractions,
             nextHotGroup,
-            prevHotGroup
+            prevHotGroup,
+            showDetailModal,
+            currentDetailItem,
+            openDetail
         };
     }
 }).mount('#app');

@@ -332,7 +332,7 @@
                         </div>
                         <div class="space-y-4">
                             <div class="flex items-center justify-between mb-4">
-                                <h2 class="text-lg font-bold text-slate-800">景點統計儀表板</h2>
+                                <h2 class="text-lg font-bold text-slate-800">景點統計圖</h2>
                                 <button @click="openCategoryModal" class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm hover:shadow transition-all duration-200 border border-slate-200 active:scale-95">
                                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
@@ -349,7 +349,10 @@
                                         <h3 class="text-xl font-bold text-amber-500">@{{ stats.total_attractions }}</h3>
                                     </div>
                                     <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-map-marked-alt"></i>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
                                     </div>
                                 </div>
                                 <!-- 分類總數卡片 (已改為白底卡片) -->
@@ -358,8 +361,10 @@
                                         <p class="text-xs font-medium text-slate-500 mb-0.5">分類總數</p>
                                         <h3 class="text-xl font-bold text-amber-500">@{{ stats.total_categories }}</h3>
                                     </div>
-                                    <div class="w-10 h-10 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-tags"></i>
+                                    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
@@ -501,9 +506,6 @@
                                                 <div class="flex items-center">
                                                     <span class="px-2.5 py-0.5 rounded font-medium bg-blue-50 text-blue-700">@{{ item.category_name }}</span>
                                                 </div>
-                                                <div class="text-slate-600 text-xs line-clamp-2 bg-slate-50 p-2 rounded mt-2">
-                                                    @{{ item.description || '點擊編輯以新增或檢視景點詳細內容...' }}
-                                                </div>
                                                 <div class="flex items-center truncate">
                                                     <span class="w-4 text-center mr-1">📍</span>
                                                     <span class="truncate">@{{ item.city }}</span>
@@ -516,6 +518,11 @@
                                         </div>
                                     </div>
                                     <div class="px-4 pb-4 pt-2 border-t flex justify-end gap-3 text-xs">
+                                        <button @click="openDetail(item)" class="text-blue-500 hover:text-blue-700 text-sm font-medium transition flex items-center gap-1">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            詳細資料
+                                        </button>
                                         <button @click="openEditModal(item)" class="text-blue-600 hover:underline">✏️ 編輯</button>
                                         <button @click="deleteAttraction(item.id)" class="text-rose-600 hover:underline">🗑️ 刪除</button>
                                     </div>
@@ -544,7 +551,34 @@
                             </div>
                         </div>
                 </div>
+                <!-- 詳細資料彈跳視窗 (Modal) -->
+                <div v-if="showDetailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <!-- 記得加上 @ 符號，讓 Laravel 知道這是留給 Vue 用的 -->
+                            <h3 class="text-xl font-bold text-slate-900">@{{ currentDetailItem.name }}</h3>
+                            <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                        </div>
 
+                        <!-- 圖片 (注意 :src 前面不用改，但如果是屬性綁定裡面的變數也不用大括號) -->
+                        <img :src="currentDetailItem.image_url" class="w-full h-48 object-cover rounded-xl bg-slate-100">
+
+                        <!-- 內容資訊 -->
+                        <div class="space-y-2 text-sm text-slate-600">
+                            <p><strong>分類：</strong><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded">@{{ currentDetailItem.category_name || (currentDetailItem.category ? currentDetailItem.category.name : '未分類') }}</span></p>
+                            <p><strong>地址：</strong>📍 @{{ currentDetailItem.city }}</p>
+                            <p><strong>建立時間：</strong>📅 @{{ currentDetailItem.created_at }}</p>
+                            <p class="pt-2 border-t"><strong>詳細介紹：</strong><br>@{{ currentDetailItem.description }}</p>
+                        </div>
+
+                        <!-- 關閉按鈕 -->
+                        <div class="flex justify-end pt-2">
+                            <button @click="showDetailModal = false" class="px-4 py-2 bg-slate-800 text-white text-sm rounded-xl hover:bg-slate-700 transition">
+                                關閉
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
             </template>
 
