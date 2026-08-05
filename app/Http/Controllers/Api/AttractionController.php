@@ -199,7 +199,7 @@ class AttractionController extends Controller
         $totalAttractions = $attractions->count();
 
         // 2. 取得資料庫中「所有」分類（確保就算分類沒有被景點使用，也能全部被算進來）
-        $allCategories = \App\Models\Category::all();
+        $allCategories = \App\Models\Category::where('user_id', $user->id)->get();
         $totalCategories = $allCategories->count();
 
         // 3. 各城市景點數量統計

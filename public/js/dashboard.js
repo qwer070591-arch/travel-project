@@ -331,6 +331,8 @@ createApp({
             currentUser.value = { id: null, name: '', email: '' };
             loginForm.value = { name: '', email: '', password: '' };
             attractions.value = [];
+            categories.value = [];
+            stats.value = { total_attractions: 0, total_categories: 0 };
             currentView.value = 'dashboard';
             stopBannerTimer();
         };
@@ -377,18 +379,29 @@ createApp({
                     body: JSON.stringify({ name })
                 });
 
+                const data = await res.json();
+
                 if (res.ok) {
                     newCategoryName.value = '';
                     await fetchCategories();
-                    await fetchAttractions(1); // 💡 補上這行：讓景點與下拉選單同步更新
-                    await fetchStatistics();    // 更新數字與圓餅圖
+                    await fetchAttractions(1);
+                    await fetchStatistics();
                     if (shouldCloseModal) showCreateCategoryModal.value = false;
+
+                    alert(data.message || '新增分類成功');
                 } else {
-                    const data = await res.json();
-                    alert(data.message || '新增分類失敗');
+                    let errorMsg = data.message || '新增分類失敗';
+                    if (data.errors) {
+                        const firstKey = Object.keys(data.errors)[0];
+                        if (firstKey && data.errors[firstKey][0]) {
+                            errorMsg = data.errors[firstKey][0];
+                        }
+                    }
+                    alert(errorMsg);
                 }
             } catch (err) {
                 console.error('新增分類錯誤', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -402,17 +415,28 @@ createApp({
                     body: JSON.stringify({ name: editCategoryForm.value.name })
                 });
 
+                const data = await res.json();
+
                 if (res.ok) {
                     showEditCategoryModal.value = false;
                     await fetchCategories();
-                    await fetchAttractions(1); // 💡 補上這行
-                    await fetchStatistics();    // 更新統計與圖表
+                    await fetchAttractions(1);
+                    await fetchStatistics();
+
+                    alert(data.message || '更新分類成功');
                 } else {
-                    const data = await res.json();
-                    alert(data.message || '修改分類失敗');
+                    let errorMsg = data.message || '修改分類失敗';
+                    if (data.errors) {
+                        const firstKey = Object.keys(data.errors)[0];
+                        if (firstKey && data.errors[firstKey][0]) {
+                            errorMsg = data.errors[firstKey][0];
+                        }
+                    }
+                    alert(errorMsg);
                 }
             } catch (err) {
                 console.error('修改分類錯誤', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -420,16 +444,20 @@ createApp({
             if (!confirm('確定要刪除此分類嗎？')) return;
             try {
                 const res = await authFetch(`/api/categories/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+
                 if (res.ok) {
                     await fetchCategories();
-                    await fetchAttractions(1); // 💡 補上這行
-                    await fetchStatistics();    // 更新統計與圖表
+                    await fetchAttractions(1);
+                    await fetchStatistics();
+
+                    alert(data.message || '刪除分類成功');
                 } else {
-                    const data = await res.json();
                     alert(data.message || '刪除失敗');
                 }
             } catch (err) {
                 console.error('刪除分類失敗', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -479,17 +507,31 @@ createApp({
                     method: 'POST',
                     body: JSON.stringify(attractionForm.value)
                 });
+
+                const data = await res.json();
+
                 if (res.ok) {
                     showCreateModal.value = false;
                     attractionForm.value = { name: '', category_id: '', city: '', image_url: '', description: '' };
                     await fetchAttractions(1);
                     await fetchStatistics();
+
+                    alert(data.message || '新增景點成功');
                 } else {
-                    const data = await res.json();
-                    alert(data.message || '新增失敗');
+                    let errorMsg = data.message || '新增失敗';
+
+                    if (data.errors) {
+                        const firstKey = Object.keys(data.errors)[0];
+                        if (firstKey && data.errors[firstKey][0]) {
+                            errorMsg = data.errors[firstKey][0];
+                        }
+                    }
+
+                    alert(errorMsg);
                 }
             } catch (err) {
                 console.error('新增景點錯誤', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -499,16 +541,28 @@ createApp({
                     method: 'PUT',
                     body: JSON.stringify(editForm.value)
                 });
+
+                const data = await res.json();
+
                 if (res.ok) {
                     showEditModal.value = false;
                     await fetchAttractions(pagination.value.current_page);
                     await fetchStatistics();
+
+                    alert(data.message || '更新景點成功');
                 } else {
-                    const data = await res.json();
-                    alert(data.message || '更新失敗');
+                    let errorMsg = data.message || '更新失敗';
+                    if (data.errors) {
+                        const firstKey = Object.keys(data.errors)[0];
+                        if (firstKey && data.errors[firstKey][0]) {
+                            errorMsg = data.errors[firstKey][0];
+                        }
+                    }
+                    alert(errorMsg);
                 }
             } catch (err) {
                 console.error('更新景點錯誤', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -516,12 +570,19 @@ createApp({
             if (!confirm('確定要刪除此景點嗎？')) return;
             try {
                 const res = await authFetch(`/api/attractions/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+
                 if (res.ok) {
                     await fetchAttractions(pagination.value.current_page);
                     await fetchStatistics();
+
+                    alert(data.message || '刪除景點成功');
+                } else {
+                    alert(data.message || '刪除失敗');
                 }
             } catch (err) {
                 console.error('刪除景點失敗', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -540,20 +601,36 @@ createApp({
         const toggleFavorite = async (item) => {
             try {
                 const res = await authFetch(`/api/attractions/${item.id}/favorite`, { method: 'POST' });
-                if (res.ok) item.is_favorited = !item.is_favorited;
+                const data = await res.json();
+                if (res.ok) {
+                    item.is_favorited = !item.is_favorited;
+                    if (data.message) {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.message || '收藏操作失敗');
+                }
             } catch (err) {
                 console.error('收藏操作失敗', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
         const removeFavorite = async (item) => {
             try {
                 const res = await authFetch(`/api/attractions/${item.id}/favorite`, { method: 'POST' });
+                const data = await res.json();
                 if (res.ok) {
                     favorites.value = favorites.value.filter(fav => fav.id !== item.id);
+                    if (data.message) {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.message || '取消收藏失敗');
                 }
             } catch (err) {
                 console.error('取消收藏失敗', err);
+                alert('網路連線或系統發生異常');
             }
         };
 
@@ -575,7 +652,6 @@ createApp({
             if (view === 'favorites') {
                 await fetchFavorites();
             } else {
-                // 確保非收藏視圖時，一定會重新抓取景點列表
                 await fetchAttractions(1);
             }
             await fetchStatistics();
@@ -657,12 +733,11 @@ createApp({
                 }
             }
         };
-        // 打開詳細資訊 Modal
+
         const openDetail = (item) => {
             currentDetailItem.value = item;
             showDetailModal.value = true;
         };
-
 
         onMounted(() => {
             init();

@@ -479,7 +479,6 @@
 
                                 <div class="flex items-center gap-2">
                                     <button @click="switchView('favorites')" :class="currentView === 'favorites' ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-600/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 active:scale-95">
-                                        <!-- 愛心小圖標 -->
                                         <svg class="w-4 h-4" :class="currentView === 'favorites' ? 'text-white' : 'text-slate-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                         </svg>
@@ -491,7 +490,8 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- 情況 A：有搜尋結果或有資料時，正常顯示網格 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" v-if="attractions && attractions.length > 0">
                                 <div v-for="item in attractions" :key="item.id" class="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
                                     <div>
                                         <div class="relative h-48 bg-slate-100">
@@ -519,8 +519,6 @@
                                     </div>
                                     <div class="px-4 pb-4 pt-2 border-t flex justify-end gap-3 text-xs">
                                         <button @click="openDetail(item)" class="text-blue-500 hover:text-blue-700 text-sm font-medium transition flex items-center gap-1">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
                                             詳細資料
                                         </button>
                                         <button @click="openEditModal(item)" class="text-blue-600 hover:underline">✏️ 編輯</button>
@@ -529,6 +527,21 @@
                                 </div>
                             </div>
 
+                            <!-- 情況 B：查無資料時顯示提示與重設按鈕 -->
+                            <div v-else class="text-center py-16 bg-white rounded-xl shadow-sm border border-slate-100 my-4">
+                                <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-bold text-slate-800">查無此筆資料</h3>
+                                <p class="mt-1 text-xs text-slate-500">很抱歉，沒有找到符合您搜尋條件的景點或地區。</p>
+                                <div class="mt-4">
+                                    <button @click="resetFilters" type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md transition shadow-sm">
+                                        重設搜尋條件
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 分頁按鈕列維持原樣 -->
                             <div v-if="pagination.total > 0" class="flex flex-col sm:flex-row justify-between items-center pt-4 border-t text-xs text-slate-600 gap-3">
                                 <div>
                                     顯示第 <span class="font-bold">@{{ pagination.from || 0 }}</span> 到 <span class="font-bold">@{{ pagination.to || 0 }}</span> 筆，共 <span class="font-bold">@{{ pagination.total }}</span> 筆資料
