@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AttractionController;
+use App\Http\Controllers\Api\AttractionController;
 
-// 1. 根目錄首頁路由（對應 resources/views/dashboard.blade.php）
 Route::get('/', function () {
     return view('dashboard');
 })->name('login');
