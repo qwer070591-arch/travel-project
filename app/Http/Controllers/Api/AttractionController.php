@@ -194,28 +194,28 @@ class AttractionController extends Controller
     {
         $user = $request->user();
 
-        // 取得該使用者所有的景點（帶有關聯的分類名稱）
-        $attractions = Attraction::with('category')->where('user_id', $user->id)->get();
-
-        // 1. 景點總數
+        // 1. 取得該使用者所有的景點
+        $attractions = Attraction::where('user_id', $user->id)->get();
         $totalAttractions = $attractions->count();
 
-        // 2. 分類總數（計算不重複的 category_id 數量）
-        $totalCategories = $attractions->unique('category_id')->count();
+        // 2. 取得資料庫中「所有」分類（確保就算分類沒有被景點使用，也能全部被算進來）
+        $allCategories = \App\Models\Category::all();
+        $totalCategories = $allCategories->count();
 
         // 3. 各城市景點數量統計
         $cityCounts = $attractions->groupBy('city')->map->count();
 
-        // 4. 各分類景點比例統計（以分類名稱作為 Key）
-        $categoryCounts = $attractions->groupBy(function ($item) {
-            return $item->category ? $item->category->name : '未分類';
-        })->map->count();
+        // 4. 初始化所有分類的計數為 0，再把該使用者的景點數量填進去
+        $categoryCounts = $allCategories->mapWithKeys(function ($category) use ($attractions) {
+            $count = $attractions->where('category_id', $category->id)->count();
+            return [$category->name => $count];
+        });
 
         return response()->json([
             'total_attractions' => $totalAttractions,
-            'total_categories' => $totalCategories,
+            'total_categories' => $totalCategories, // 這邊就會正確回傳全部的分類總數（例如 8）
             'city_counts' => $cityCounts,
-            'category_counts' => $categoryCounts,
+            'category_counts' => $categoryCounts,   // 包含數量為 0 的分類都會完整列出
         ]);
     }
 }

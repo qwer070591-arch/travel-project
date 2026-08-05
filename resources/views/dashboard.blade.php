@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Vue 3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -28,12 +29,6 @@
                             <span class="text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-emerald-400 font-medium hidden sm:inline-block">
                                 @{{ currentUser.name }}
                             </span>
-                            <button @click="switchView('favorites')" :class="currentView === 'favorites' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'" class="px-3 py-1.5 rounded-md text-xs font-bold transition border border-slate-700">
-                                我的收藏
-                            </button>
-                            <button @click="openCategoryModal" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-md text-xs font-bold transition border border-slate-700">
-                                分類管理
-                            </button>
                             <button @click="openProfileModal" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-md text-xs font-bold transition border border-slate-700">
                                 會員中心
                             </button>
@@ -109,7 +104,7 @@
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <span class="px-3 py-1 bg-slate-800 text-white text-xs rounded-full">本週特輯</span>
-                                    <button @click="currentView = 'dashboard'" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition">
+                                    <button @click="currentView = 'dashboard'; fetchStatistics()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition">
                                         &larr; 返回首頁
                                     </button>
                                 </div>
@@ -147,7 +142,7 @@
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <span class="px-3 py-1 bg-amber-800 text-white text-xs rounded-full">巷弄咖啡</span>
-                                    <button @click="currentView = 'dashboard'" class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition">
+                                    <button @click="currentView = 'dashboard'; fetchStatistics()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition">
                                         &larr; 返回首頁
                                     </button>
                                 </div>
@@ -188,7 +183,7 @@
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <span class="px-3 py-1 bg-indigo-800 text-white text-xs rounded-full">一日漫遊足跡</span>
-                                    <button @click="currentView = 'dashboard'" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition">
+                                    <button @click="currentView = 'dashboard'; fetchStatistics()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition">
                                         &larr; 返回首頁
                                     </button>
                                 </div>
@@ -270,7 +265,7 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white space-y-1">
                                     <span class="px-2.5 py-0.5 rounded font-medium text-xs bg-blue-600 text-white w-fit">精選推薦</span>
                                     <h3 class="text-2xl font-bold">@{{ banner.name }}</h3>
-                                    <p class="text-xs text-slate-200">📍 @{{ banner.city }}</p>
+                                    <p class="text-xs text-slate-200"></p>
                                 </div>
                             </div>
                             <button @click="prevBanner" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100">&lt;</button>
@@ -335,7 +330,47 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-bold text-slate-800">景點統計儀表板</h2>
+                                <button @click="openCategoryModal" class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm hover:shadow transition-all duration-200 border border-slate-200 active:scale-95">
+                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                    </svg>
+                                    分類管理
+                                </button>
+                            </div>
+                            <!-- 上方總數指標卡片列 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                <!-- 景點總數卡片 (已改為白底卡片) -->
+                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-slate-500 mb-0.5">景點總數</p>
+                                        <h3 class="text-xl font-bold text-amber-500">@{{ stats.total_attractions }}</h3>
+                                    </div>
+                                    <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </div>
+                                </div>
+                                <!-- 分類總數卡片 (已改為白底卡片) -->
+                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-slate-500 mb-0.5">分類總數</p>
+                                        <h3 class="text-xl font-bold text-amber-500">@{{ stats.total_categories }}</h3>
+                                    </div>
+                                    <div class="w-10 h-10 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-tags"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 下方圓餅圖完整保留 -->
+                            <div class="flex flex-col items-center">
+                                <h5 class="text-xs font-bold text-slate-600 mb-2">各分類景點比例</h5>
+                                <div class="chart-container relative mx-auto" style="height: 180px; width: 100%; max-width: 220px;">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                         <!-- 篩選列 -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-slate-100 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
                             <div class="relative">
@@ -421,11 +456,11 @@
                             </div>
                         </div>
 
-                        <!-- 景點列表區塊 -->
+                        <!-- 景點列表主體區塊 -->
                         <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 space-y-4">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div class="flex items-center gap-4">
-                                    <h2 class="text-base font-bold text-slate-900"> 景點列表</h2>
+                                    <h2 class="text-base font-bold text-slate-900">景點列表</h2>
                                     <div class="flex items-center gap-1.5 text-xs text-slate-600">
                                         <span>每頁顯示：</span>
                                         <select v-model="perPage" @change="fetchAttractions(1)" class="border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -438,8 +473,12 @@
                                 </div>
 
                                 <div class="flex items-center gap-2">
-                                    <button @click="openCreateCategoryModal" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-md transition shadow">
-                                        + 新增分類
+                                    <button @click="switchView('favorites')" :class="currentView === 'favorites' ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-600/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 active:scale-95">
+                                        <!-- 愛心小圖標 -->
+                                        <svg class="w-4 h-4" :class="currentView === 'favorites' ? 'text-white' : 'text-slate-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        我的收藏
                                     </button>
                                     <button @click="openCreateModal" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-md transition shadow">
                                         + 新增景點
@@ -503,120 +542,70 @@
                                     </button>
                                 </div>
                             </div>
-                            <!-- 📊 數據統計儀表板 -->
-                            <div class="mt-12 bg-white p-6 rounded-xl shadow-md border border-gray-100">
-                                <div class="flex justify-between items-center mb-6">
-                                    <h3 class="text-xl font-bold text-gray-800">景點統計儀表板</h3>
+                        </div>
+                </div>
+
+
+            </template>
+
+            <!-- 5. 我的收藏視圖 -->
+            <template v-if="currentView === 'favorites'">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 space-y-6">
+                    <div class="flex justify-between items-center border-b pb-4">
+                        <h2 class="text-lg font-bold text-slate-900"> 我的收藏景點</h2>
+                        <button @click="switchView('dashboard')" class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-md border">&lt; 返回</button>
+                    </div>
+
+                    <div v-if="favorites.length === 0" class="text-center py-10 text-slate-400 text-sm">
+                        目前沒有收藏任何景點
+                    </div>
+
+                    <div v-for="(items, categoryName) in groupedFavorites" :key="categoryName" class="space-y-3">
+                        <div class="flex items-center gap-2 border-l-4 border-blue-600 pl-3">
+                            <h3 class="font-bold text-slate-800 text-base">@{{ categoryName }}</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">@{{ items.length }} 個景點</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div v-for="item in items" :key="item.id" class="bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div class="relative w-24 h-24 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img :src="item.image_url || 'https://placehold.co/600x400'" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="space-y-1 flex-1">
+                                        <h4 class="font-bold text-slate-900 text-base">@{{ item.name }}</h4>
+                                        <div class="flex items-center gap-2 text-xs flex-wrap">
+                                            <span class="px-2.5 py-0.5 rounded font-medium bg-blue-50 text-blue-700">@{{ item.category_name }}</span>
+                                            <span class="text-slate-500">📍 @{{ item.city }}</span>
+                                        </div>
+                                        <p class="text-slate-600 text-xs mt-1 line-clamp-2 bg-slate-50 p-1.5 rounded">
+                                            @{{ item.description || '尚無景點內容介紹...' }}
+                                        </p>
+                                    </div>
                                 </div>
-
-                                <!-- 上方：總數統計卡片 -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 flex justify-between items-center">
-                                        <div>
-                                            <p class="text-sm text-gray-500 font-medium">景點總數</p>
-                                            <p class="text-3xl font-bold text-gray-800 mt-1" x-text="totalAttractions">0</p>
-                                        </div>
-                                        <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-
-                                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 flex justify-between items-center">
-                                        <div>
-                                            <p class="text-sm text-gray-500 font-medium">分類總數</p>
-                                            <p class="text-3xl font-bold text-gray-800 mt-1" x-text="totalAttractions">0</p>
-                                        </div>
-                                        <div class="p-3 bg-amber-100 text-amber-600 rounded-full">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 下方：圖表展示區 -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <!-- 各城市景點數量 (長條圖) -->
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-700 mb-4">各城市景點數量</h4>
-                                        <div class="relative h-64">
-                                            <canvas id="cityChart"></canvas>
-                                        </div>
-                                    </div>
-
-                                    <!-- 各分類景點比例 (圓餅圖) -->
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-700 mb-4">各分類景點比例</h4>
-                                        <div class="relative h-64 flex justify-center">
-                                            <canvas id="categoryChart"></canvas>
-                                        </div>
-                                    </div>
+                                <div>
+                                    <button @click="removeFavorite(item)" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-sm">
+                                        ❤️ 取消收藏
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </template>
-
-                    <!-- 5. 我的收藏視圖 -->
-                    <template v-if="currentView === 'favorites'">
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 space-y-6">
-                            <div class="flex justify-between items-center border-b pb-4">
-                                <h2 class="text-lg font-bold text-slate-900"> 我的收藏景點</h2>
-                                <button @click="switchView('dashboard')" class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-md border">&lt; 返回</button>
-                            </div>
-
-                            <div v-if="favorites.length === 0" class="text-center py-10 text-slate-400 text-sm">
-                                目前沒有收藏任何景點
-                            </div>
-
-                            <div v-for="(items, categoryName) in groupedFavorites" :key="categoryName" class="space-y-3">
-                                <div class="flex items-center gap-2 border-l-4 border-blue-600 pl-3">
-                                    <h3 class="font-bold text-slate-800 text-base">@{{ categoryName }}</h3>
-                                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">@{{ items.length }} 個景點</span>
-                                </div>
-
-                                <div class="space-y-3">
-                                    <div v-for="item in items" :key="item.id" class="bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition flex items-center justify-between gap-4">
-                                        <div class="flex items-center gap-4 flex-1">
-                                            <div class="relative w-24 h-24 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                <img :src="item.image_url || 'https://placehold.co/600x400'" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="space-y-1 flex-1">
-                                                <h4 class="font-bold text-slate-900 text-base">@{{ item.name }}</h4>
-                                                <div class="flex items-center gap-2 text-xs flex-wrap">
-                                                    <span class="px-2.5 py-0.5 rounded font-medium bg-blue-50 text-blue-700">@{{ item.category_name }}</span>
-                                                    <span class="text-slate-500">📍 @{{ item.city }}</span>
-                                                </div>
-                                                <p class="text-slate-600 text-xs mt-1 line-clamp-2 bg-slate-50 p-1.5 rounded">
-                                                    @{{ item.description || '尚無景點內容介紹...' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <button @click="removeFavorite(item)" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-sm">
-                                                ❤️ 取消收藏
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-
+                    </div>
                 </div>
             </template>
-        </main>
 
-        <!-- 引入獨立的 Modals 元件 -->
-        @include('components.category-modal')
-        @include('components.profile-modal')
-        @include('components.attraction-modals')
+    </div>
+    </template>
+    </main>
 
-        <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto relative z-20">
-            Copyright © 2026 旅遊景點管理與數據統計 Dashboard. All rights reserved.
-        </footer>
+    <!-- 引入獨立的 Modals 元件 -->
+    @include('components.category-modal')
+    @include('components.profile-modal')
+    @include('components.attraction-modals')
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto relative z-20">
+        Copyright © 2026 旅遊景點管理與數據統計 Dashboard. All rights reserved.
+    </footer>
     </div>
 
     <!-- 載入獨立出去的 Vue 邏輯檔案 -->

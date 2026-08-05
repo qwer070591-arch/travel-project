@@ -28,6 +28,89 @@ const authFetch = async (url, options = {}) => {
     }
 };
 
+// 📊 統計儀表板狀態
+const stats = ref({
+    total_attractions: 0,
+    total_categories: 0,
+    city_counts: {},
+    category_counts: {}
+});
+
+let cityChartInstance = null;
+let categoryChartInstance = null;
+
+// 取得統計資料的 API 函式
+const fetchStatistics = async () => {
+    try {
+        const res = await authFetch('/api/attractions/statistics');
+        if (res.ok) {
+            const data = await res.json();
+            stats.value = data;
+
+            // 資料抓回來後，渲染圖表
+            renderCharts();
+        }
+    } catch (err) {
+        console.error('取得統計資料失敗', err);
+    }
+};
+
+// 渲染 Chart.js 圖表
+const renderCharts = () => {
+    // 1. 城市景點數量長條圖
+    const cityCtx = document.getElementById('cityChart');
+    if (cityCtx) {
+        if (cityChartInstance) cityChartInstance.destroy(); // 避免重複渲染
+
+        const cityLabels = Object.keys(stats.value.city_counts || {});
+        const cityData = Object.values(stats.value.city_counts || {});
+
+        cityChartInstance = new Chart(cityCtx, {
+            type: 'bar',
+            data: {
+                labels: cityLabels,
+                datasets: [{
+                    label: '景點數量',
+                    data: cityData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // 2. 分類景點比例圓餅圖
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        if (categoryChartInstance) categoryChartInstance.destroy();
+
+        const catLabels = Object.keys(stats.value.category_counts || {});
+        const catData = Object.values(stats.value.category_counts || {});
+
+        categoryChartInstance = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catData,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+};
+
 createApp({
     setup() {
         // =========================================================================
@@ -104,6 +187,7 @@ createApp({
                 image: "images/img08.jpg",
                 description: "當大片綠意與當代城市生活完美融合成日常風景。漫步在草悟道街區，感受獨立書店的墨香、微風與在地慢活的節奏，是午後散策與尋找靈感的最佳去處。"
             }
+
         ]);
 
         const coffeeData = ref([
@@ -131,6 +215,7 @@ createApp({
                 image: "images/img11.jpg",
                 description: "座落在向上市場附近的轉角巷弄，純白簡約的建築外觀與隨性自在的氛圍，深受在地人喜愛。這裡提供豐富的烘焙度與豆款選擇，像是一座隨時為城市旅人敞開的咖啡驛站。"
             }
+
         ]);
 
         const topTenAttractions = ref([
@@ -232,6 +317,7 @@ createApp({
 
                 await fetchCategories();
                 await fetchAttractions(1);
+                await fetchStatistics();
                 startBannerTimer();
             } catch (err) {
                 authError.value = err.message;
@@ -270,9 +356,7 @@ createApp({
             }
         };
 
-        // =========================================================================
         // 5. 分類管理 (Category Management)
-        // =========================================================================
         const fetchCategories = async () => {
             try {
                 const res = await authFetch('/api/categories');
@@ -295,6 +379,8 @@ createApp({
                 if (res.ok) {
                     newCategoryName.value = '';
                     await fetchCategories();
+                    await fetchAttractions(1); // 💡 補上這行：讓景點與下拉選單同步更新
+                    await fetchStatistics();    // 更新數字與圓餅圖
                     if (shouldCloseModal) showCreateCategoryModal.value = false;
                 } else {
                     const data = await res.json();
@@ -318,6 +404,8 @@ createApp({
                 if (res.ok) {
                     showEditCategoryModal.value = false;
                     await fetchCategories();
+                    await fetchAttractions(1); // 💡 補上這行
+                    await fetchStatistics();    // 更新統計與圖表
                 } else {
                     const data = await res.json();
                     alert(data.message || '修改分類失敗');
@@ -332,7 +420,9 @@ createApp({
             try {
                 const res = await authFetch(`/api/categories/${id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    fetchCategories();
+                    await fetchCategories();
+                    await fetchAttractions(1); // 💡 補上這行
+                    await fetchStatistics();    // 更新統計與圖表
                 } else {
                     const data = await res.json();
                     alert(data.message || '刪除失敗');
@@ -373,7 +463,6 @@ createApp({
             }
         };
 
-        // 🔍 新增：修正控制台 Warning 缺少的搜尋處理函式
         const handleKeywordSearch = () => {
             fetchAttractions(1);
         };
@@ -392,7 +481,8 @@ createApp({
                 if (res.ok) {
                     showCreateModal.value = false;
                     attractionForm.value = { name: '', category_id: '', city: '', image_url: '', description: '' };
-                    fetchAttractions(1);
+                    await fetchAttractions(1);
+                    await fetchStatistics();
                 } else {
                     const data = await res.json();
                     alert(data.message || '新增失敗');
@@ -410,7 +500,8 @@ createApp({
                 });
                 if (res.ok) {
                     showEditModal.value = false;
-                    fetchAttractions(pagination.value.current_page);
+                    await fetchAttractions(pagination.value.current_page);
+                    await fetchStatistics();
                 } else {
                     const data = await res.json();
                     alert(data.message || '更新失敗');
@@ -425,7 +516,8 @@ createApp({
             try {
                 const res = await authFetch(`/api/attractions/${id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    fetchAttractions(pagination.value.current_page);
+                    await fetchAttractions(pagination.value.current_page);
+                    await fetchStatistics();
                 }
             } catch (err) {
                 console.error('刪除景點失敗', err);
@@ -476,9 +568,16 @@ createApp({
         // =========================================================================
         // 8. 介面操作輔助 (UI Helpers & Navigation)
         // =========================================================================
-        const switchView = (view) => {
+        const switchView = async (view) => {
             currentView.value = view;
-            if (view === 'favorites') fetchFavorites();
+
+            if (view === 'favorites') {
+                await fetchFavorites();
+            } else {
+                // 確保非收藏視圖時，一定會重新抓取景點列表
+                await fetchAttractions(1);
+            }
+            await fetchStatistics();
         };
 
         const changePage = (page) => {
@@ -547,6 +646,7 @@ createApp({
                         isLoggedIn.value = true;
                         await fetchCategories();
                         await fetchAttractions(1);
+                        await fetchStatistics();
                         startBannerTimer();
                     } else {
                         localStorage.removeItem('token');
@@ -593,6 +693,8 @@ createApp({
             filters,
             perPage,
             pagination,
+            stats,
+            fetchStatistics,
             switchView,
             openCategoryModal,
             openCreateCategoryModal,
@@ -604,8 +706,8 @@ createApp({
             handleLogout,
             updateProfile,
             fetchAttractions,
-            handleKeywordSearch, // 👈 已補上
-            clearKeyword,        // 👈 已補上
+            handleKeywordSearch,
+            clearKeyword,
             changePage,
             toggleFavorite,
             fetchFavorites,

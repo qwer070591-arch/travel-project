@@ -1,9 +1,9 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // 發送請求取得統計資料
+// 定義一個全域或共用的抓取統計函式
+function loadStatistics() {
     axios.get('/api/attractions/statistics')
         .then(response => {
             const data = response.data;
-            console.log('統計資料抓取成功：', data); // 可以打開 F12 看這裡有沒有印出資料
+            console.log('統計資料抓取成功：', data);
 
             // 1. 更新上方總數數字
             const totalAttractionsEl = document.querySelector('[x-text="totalAttractions"]');
@@ -12,28 +12,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const totalCategoriesEl = document.querySelector('[x-text="totalCategories"]');
             if (totalCategoriesEl) totalCategoriesEl.innerText = data.total_categories;
 
-            // 2. 渲染各城市長條圖
-            const cityCtx = document.getElementById('cityChart');
-            if (cityCtx) {
-                new Chart(cityCtx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(data.city_counts),
-                        datasets: [{
-                            label: '景點數量',
-                            data: Object.values(data.city_counts),
-                            backgroundColor: '#3B82F6',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
-            }
-
-            // 3. 渲染各分類圓餅圖
+            // 2. 渲染或更新各分類圓餅圖 (建議加上 chart 實例銷毀機制避免重複渲染)
             const categoryCtx = document.getElementById('categoryChart');
             if (categoryCtx) {
-                new Chart(categoryCtx.getContext('2d'), {
+                // 如果已經有舊圖表，先銷毀它再建立新圖表，避免畫面疊圖
+                if (window.myCategoryChart) {
+                    window.myCategoryChart.destroy();
+                }
+
+                window.myCategoryChart = new Chart(categoryCtx.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: Object.keys(data.category_counts),
@@ -47,6 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch(error => {
-            console.error('抓取統計資料失敗，請檢查 API 路由或登入狀態：', error);
+            console.error('抓取統計資料失敗：', error);
         });
+}
+
+// 頁面載入時執行一次
+document.addEventListener("DOMContentLoaded", function () {
+    loadStatistics();
 });
