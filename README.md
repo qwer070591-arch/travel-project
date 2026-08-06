@@ -36,23 +36,23 @@
 
 ### 1. 互動式首頁與視覺導覽
 提供高質感的品牌視覺 Banner、熱門景點與美食推薦區塊，並具備直覺的快速導覽列，引導使用者快速尋找旅遊靈感。
-<!-- ![首頁與Banner展示]() -->
+![首頁與Banner展示](./docs/screenshots/home.png) 
 
 ### 2. 會員驗證與專屬工作區 (Data Isolation)
 實作會員註冊與登入功能，採用 Bearer Token 進行 API 請求驗證。嚴格把關後端權限，確保每位使用者登入後，只能檢視、編輯與統計「屬於自己」的景點與分類資料，保障資料隱私。
 
 ### 3. 智慧化景點檢索系統
 支援關鍵字即時搜尋（針對名稱與地址）、縣市地區精準篩選、動態分類標籤，以及自訂排序功能，協助使用者在龐大資料中精準定位行程。
-<!-- ![景點檢索與篩選](./screenshots/search-filter.png) -->
+![景點檢索與篩選](./docs/screenshots/search.png)
 
 ### 4. 景點與分類管理後台 (CRUD)
 提供完整的資料管理能力。包含景點與分類的新增 (Create)、讀取 (Read)、修改 (Update) 與刪除 (Delete)。
 表單內建嚴謹的前後端雙重防呆驗證（例如：地址必須同時包含縣市與行政區），並提供明確的操作狀態回饋 (Toast/Alert)。
-<!-- ![後台景點管理](./screenshots/admin-crud.png) -->
-
+![後台景點管理](./docs/screenshots/admin-crud.png)
+![後台景點管理](./docs/screenshots/admin-crud2.png)
 ### 5. 個人化儀表板與數據統計
-系統會根據當前登入使用者的收藏與建立紀錄，直觀展示各城市景點的分佈狀態，並利用 Chart.js 將分類佔比轉化為圓餅圖與長條圖，讓繁雜數據一目了然。
-<!-- ![數據統計圖表](./screenshots/data-dashboard.png) -->
+系統會根據當前登入使用者的建立紀錄，直觀展示景點與分類總數，並利用 Chart.js 將分類佔比轉化為環形圓餅圖，讓繁雜數據一目了然。
+![數據統計圖表](./docs/screenshots/data-dashboard.png)
 
 ---
 
@@ -67,7 +67,7 @@
   * 具備外鍵關聯至 user_id (擁有者) 與 category_id (所屬分類)。
 * favorite_attraction (收藏關聯表)：多對多 (Many-to-Many) 關聯表，記錄使用者收藏了哪些特定景點。
 
-<!-- ![資料庫架構圖](./screenshots/database-schema.png) -->
+![資料庫架構圖](./docs/screenshots/database-schema.png)
 
 ---
 
@@ -85,7 +85,8 @@
 | DELETE| `/api/attractions/{id}` | 刪除特定景點 | 需登入 (僅限擁有者) |
 | GET | `/api/attractions/statistics`| 取得儀表板統計圖表數據 | 需登入 |
 
-<!-- ![Postman API 測試紀錄](./screenshots/api-testing.png) -->
+![會員登入成功](./docs/screenshots/01_api_login.png)
+![取得景點列表](./docs/screenshots/02_get_attractions.png)
 
 ---
 
@@ -101,13 +102,17 @@
 ### 測試項目一：表單防呆與資料驗證 (Validation Testing)
 * 測試情境：於新增景點時，刻意輸入不完整的地址（缺少縣市或行政區），或留空必填欄位。
 * 實際結果：後端 Laravel Request Validation 成功攔截無效請求 (422 Unprocessable Entity)，前端接收錯誤後，精準在對應的輸入框下方顯示紅色錯誤提示，有效維持資料庫的資料品質。
-<!-- ![表單驗證測試](./screenshots/form-validation.png) -->
+
+![表單防呆與資料驗證](./docs/screenshots/form-validation.png)
+---
 
 ### 測試項目二：RWD 響應式排版與跨裝置測試 (Responsive Web Design)
 * 測試情境：模擬桌面版 (1200px)、平板版 (768px) 及手機版 (375px) 檢視系統介面。
 * 實際結果：各尺寸斷點下的版面皆能自動適應。手機版導覽列順利轉換為收合式漢堡選單，Grid 卡片排版從四欄自動轉為單欄，無水平捲軸溢出狀況。
-<!-- ![RWD測試結果](./screenshots/rwd-testing.png) -->
 
+![RWD 響應式排版1200px](./docs/screenshots/desktop.png)
+![RWD 響應式排版768px](./docs/screenshots/tablet.png)
+![RWD 響應式排版375px](./docs/screenshots/mobile.png)
 ---
 
 ## 快速啟動 (Getting Started)
@@ -116,5 +121,29 @@
 
 ### 1. 取得專案程式碼
 ```bash
-git clone [https://github.com/你的帳號/你的專案名稱.git](https://github.com/你的帳號/你的專案名稱.git)
-cd 你的專案名稱
+git clone [https://github.com/qwer070591-arch/travel-project.git](https://github.com/qwer070591-arch/travel-project.git)
+cd travel-project
+```
+### 2. 安裝後端 PHP 依賴套件
+composer install
+
+### 3. 環境設定與資料庫遷移
+* 複製環境設定檔
+cp .env.example .env
+
+* 生成應用程式金鑰
+php artisan key:generate
+
+* 請先至 .env 檔案中設定您的資料庫連線資訊 (DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+* 執行資料庫遷移與資料填充
+php artisan migrate
+
+### 4. 安裝前端依賴並啟動專案
+* 安裝前端套件
+npm install
+
+* 編譯前端資源或啟動開發伺服器
+npm run dev
+
+### 5. 啟動後端伺服器
+php artisan serve
