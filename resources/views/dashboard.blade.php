@@ -257,53 +257,54 @@
                     <!-- 4. 景點列表與儀表板視圖 -->
                     <template v-if="currentView === 'dashboard'">
                         <!-- 🎯 大圖輪播 Banner -->
-                        <div v-if="banners.length > 0" class="relative w-full h-96 bg-slate-900 rounded-2xl overflow-hidden shadow-md group">
+                        <div v-if="banners.length > 0" class="relative w-full h-[32rem] bg-slate-900 rounded-3xl overflow-hidden shadow-lg group">
                             <div v-for="(banner, index) in banners" :key="banner.id"
                                 v-show="currentBanner === index"
                                 class="absolute inset-0 transition-all duration-700">
                                 <img :src="banner.image_url || 'https://placehold.co/1200x400'" class="w-full h-full object-cover opacity-80">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white space-y-1">
-                                    <span class="px-2.5 py-0.5 rounded font-medium text-xs bg-blue-600 text-white w-fit">精選推薦</span>
-                                    <h3 class="text-2xl font-bold">@{{ banner.name }}</h3>
-                                    <p class="text-xs text-slate-200"></p>
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-8 text-white space-y-2">
+                                    <span class="px-3 py-1 rounded font-medium text-sm bg-blue-600 text-white w-fit">精選推薦</span>
+                                    <h3 class="text-3xl font-bold">@{{ banner.name }}</h3>
+                                    <p class="text-sm text-slate-200"></p>
                                 </div>
                             </div>
-                            <button @click="prevBanner" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100">&lt;</button>
-                            <button @click="nextBanner" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100">&gt;</button>
-                            <div class="absolute bottom-3 right-4 flex gap-1.5 z-10">
+                            <button @click="prevBanner" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full transition opacity-0 group-hover:opacity-100 text-lg">&lt;</button>
+                            <button @click="nextBanner" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full transition opacity-0 group-hover:opacity-100 text-lg">&gt;</button>
+                            <div class="absolute bottom-4 right-6 flex gap-2 z-10">
                                 <button v-for="(banner, index) in banners" :key="index"
                                     @click="currentBanner = index"
-                                    class="w-2.5 h-2.5 rounded-full transition"
-                                    :class="currentBanner === index ? 'bg-white w-6' : 'bg-white/50'"></button>
+                                    class="w-3 h-3 rounded-full transition"
+                                    :class="currentBanner === index ? 'bg-white w-8' : 'bg-white/50'"></button>
                             </div>
                         </div>
+
                         <!-- 🌟 熱門推薦景點與美食（分頁輪播區塊） -->
-                        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 space-y-4">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="bg-white rounded-3xl shadow-sm p-8 border border-slate-100 space-y-6">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div>
-                                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                                        <span>✨</span> 台中必訪熱門景點與美食推薦
+                                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                                        <span class="text-xl">✨</span> 台中必訪熱門景點與美食推薦
                                     </h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">探索在地人氣最高、最受歡迎的精選景點</p>
+                                    <p class="text-sm text-slate-500 mt-1">探索在地人氣最高、最受歡迎的精選景點</p>
                                 </div>
 
                                 <!-- 右側按鈕與分頁控制群組 -->
-                                <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-4">
                                     <!-- 三個分類按鈕 (加入 click 事件) -->
-                                    <div class="inline-flex rounded-md shadow-sm" role="group">
-                                        <button type="button" @click="currentView = 'weeklySpecial'" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-600 rounded-l-lg hover:bg-emerald-50 transition">本週特輯</button>
-                                        <button type="button" @click="currentView = 'coffeeSpecial'" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border-t border-b border-emerald-600 hover:bg-emerald-50 transition">巷弄咖啡</button>
-                                        <button type="button" @click="currentView = 'itinerary'" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-600 rounded-r-lg hover:bg-emerald-50 transition">一日漫遊足跡</button>
+                                    <div class="inline-flex rounded-lg shadow-sm" role="group">
+                                        <button type="button" @click="currentView = 'weeklySpecial'" class="px-4 py-2 text-sm font-medium text-emerald-700 bg-white border border-emerald-600 rounded-l-xl hover:bg-emerald-50 transition">本週特輯</button>
+                                        <button type="button" @click="currentView = 'coffeeSpecial'" class="px-4 py-2 text-sm font-medium text-emerald-700 bg-white border-t border-b border-emerald-600 hover:bg-emerald-50 transition">巷弄咖啡</button>
+                                        <button type="button" @click="currentView = 'itinerary'" class="px-4 py-2 text-sm font-medium text-emerald-700 bg-white border border-emerald-600 rounded-r-xl hover:bg-emerald-50 transition">一日漫遊足跡</button>
                                     </div>
 
                                     <!-- 左右切換分頁按鈕 -->
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-3">
                                         <button @click="prevHotGroup" :disabled="hotPage === 0"
-                                            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition border">
+                                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition border">
                                             &larr; 上一頁
                                         </button>
                                         <button @click="nextHotGroup" :disabled="(hotPage + 1) * 4 >= hotAttractions.length"
-                                            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition border">
+                                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition border">
                                             下一頁 &rarr;
                                         </button>
                                     </div>
@@ -312,20 +313,20 @@
                         </div>
 
                         <!-- 4 個一組的熱門景點卡片網格 -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div v-for="item in pagedHotAttractions" :key="item.rank"
-                                class="border border-slate-100 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition bg-gradient-to-br from-white to-slate-50/50">
-                                <img :src="item.image_url" :alt="item.name" class="w-full h-32 object-cover rounded-t-lg mb-3">
+                                class="border border-slate-100 rounded-2xl p-5 flex flex-col justify-between hover:shadow-lg transition bg-gradient-to-br from-white to-slate-50/50">
+                                <img :src="item.image_url" :alt="item.name" class="w-full h-44 object-cover rounded-xl mb-4">
                                 <div>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold px-2.5 py-0.5 bg-blue-50 text-blue-600 rounded-full">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-xs font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full">
                                             #@{{ item.rank }} @{{ item.tag }}
                                         </span>
                                     </div>
-                                    <h3 class="font-bold text-slate-900 text-base mb-1">@{{ item.name }}</h3>
-                                    <p class="text-xs text-slate-600 mb-3 line-clamp-2">@{{ item.feature }}</p>
+                                    <h3 class="font-bold text-slate-950 text-lg mb-2">@{{ item.name }}</h3>
+                                    <p class="text-sm text-slate-600 mb-4 line-clamp-2">@{{ item.feature }}</p>
                                 </div>
-                                <div class="text-xs bg-orange-50/80 text-orange-800 p-2.5 rounded-lg border border-orange-100">
+                                <div class="text-xs bg-orange-50/80 text-orange-800 p-3 rounded-xl border border-orange-100">
                                     🍽️ <strong class="font-semibold">特色/美食：</strong>@{{ item.food }}
                                 </div>
                             </div>
