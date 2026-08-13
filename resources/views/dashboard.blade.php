@@ -652,7 +652,7 @@
     @include('components.attraction-modals')
 
     <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto relative z-20">
-        Copyright © 2026 旅遊景點管理與數據統計 Dashboard. All rights reserved.
+        旅遊景點管理與數據統計 Dashboard.
     </footer>
     </div>
 
