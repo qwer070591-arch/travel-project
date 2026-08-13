@@ -652,7 +652,7 @@
     @include('components.attraction-modals')
 
     <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto relative z-20">
-        旅遊景點管理與數據統計 Dashboard.
+        旅遊景點管理與數據統計 Dashboard.20260811-travel-project
     </footer>
     </div>
 
